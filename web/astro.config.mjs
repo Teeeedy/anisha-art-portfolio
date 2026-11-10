@@ -7,6 +7,21 @@ import { defineConfig } from 'astro/config';
  */
 const site = process.env.PUBLIC_SITE_URL || process.env.CF_PAGES_URL || undefined;
 
+// Build-time diagnostics: names only (never values) of the variables the build can see.
+const visible = Object.keys(process.env)
+  .filter((k) => k.startsWith('PUBLIC_') || k.startsWith('CF_PAGES'))
+  .sort();
+console.log(`[env] visible at build: ${visible.length ? visible.join(', ') : '(none)'}`);
+
+// On Cloudflare, a missing project id means the variables were not injected.
+// Fail the build rather than publish an empty site over the live one.
+if (process.env.CF_PAGES && !process.env.PUBLIC_SANITY_PROJECT_ID) {
+  throw new Error(
+    'PUBLIC_SANITY_PROJECT_ID is not available to this Cloudflare Pages build. ' +
+      'Check Settings → Variables and secrets for this environment (Production / Preview).',
+  );
+}
+
 export default defineConfig({
   site,
   // Fully static for now. When server endpoints are needed (e.g. /api/checkout
