@@ -1,0 +1,50 @@
+---
+import type { SanityImage as SanityImageType } from '../types/sanity';
+import { responsiveImage, type ResponsiveImageOptions } from '../lib/image';
+
+interface Props extends ResponsiveImageOptions {
+  image?: SanityImageType | null;
+  sizes?: string;
+  loading?: 'lazy' | 'eager';
+  fetchpriority?: 'high' | 'low' | 'auto';
+  /** Overrides the CMS alt text (e.g. "" for decorative). */
+  alt?: string;
+  class?: string;
+  id?: string;
+}
+
+const {
+  image,
+  sizes = '100vw',
+  loading = 'lazy',
+  fetchpriority,
+  alt,
+  class: className,
+  id,
+  widths,
+  aspectRatio,
+  quality,
+} = Astro.props;
+
+const img = responsiveImage(image, { widths, aspectRatio, quality });
+---
+
+{
+  img ? (
+    <img
+      id={id}
+      class={className}
+      src={img.src}
+      srcset={img.srcset}
+      sizes={sizes}
+      width={img.width}
+      height={img.height}
+      alt={alt ?? img.alt}
+      loading={loading}
+      fetchpriority={fetchpriority}
+      decoding="async"
+    />
+  ) : (
+    <div id={id} class:list={['placeholder', className]} aria-hidden="true" />
+  )
+}

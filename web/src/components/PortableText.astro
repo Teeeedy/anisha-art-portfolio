@@ -1,0 +1,14 @@
+---
+import type { PortableText } from '../types/sanity';
+import { portableTextToHtml } from '../lib/portableText';
+
+interface Props {
+  value?: PortableText | null;
+  class?: string;
+}
+
+const { value, class: className } = Astro.props;
+const html = portableTextToHtml(value);
+---
+
+{html && <div class:list={['prose', className]} set:html={html} />}

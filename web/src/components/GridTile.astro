@@ -1,0 +1,206 @@
+---
+import type { GridItem } from '../types/grid';
+import { GRID_SIZES, tileImage } from '../lib/image';
+import PriceTag from './PriceTag.astro';
+
+interface Props {
+  item: GridItem;
+  eager?: boolean;
+}
+
+const { item, eager = false } = Astro.props;
+
+const img = tileImage(item.image);
+const isLink = typeof item.href === 'string';
+const hasVideo = Boolean(item.videoUrl);
+/** Art tiles carry commerce data; make up tiles do not. */
+const isProduct = item.status !== undefined || item.price !== undefined;
+const Tag = isLink ? 'a' : 'button';
+---
+
+<li
+  class:list={['tile', { 'tile--video': hasVideo }]}
+  data-artwork-id={isProduct ? item.id : undefined}
+  data-sku={isProduct ? (item.sku ?? undefined) : undefined}
+  data-price={isProduct && typeof item.price === 'number' ? item.price : undefined}
+  data-currency={isProduct ? (item.currency ?? 'AUD') : undefined}
+  data-status={isProduct ? (item.status ?? 'available') : undefined}
+>
+  <Tag
+    class="tile__link"
+    href={isLink ? item.href : undefined}
+    type={isLink ? undefined : 'button'}
+    data-lightbox-index={isLink ? undefined : item.lightboxIndex}
+    aria-label={isLink ? undefined : `Open ${item.title}`}
+  >
+    <span class="tile__media placeholder">
+      {
+        hasVideo ? (
+          <video
+            class="tile__video"
+            src={item.videoUrl}
+            poster={img?.src}
+            muted
+            loop
+            playsinline
+            preload="metadata"
+            tabindex="-1"
+            aria-hidden="true"
+            data-hover-video
+          />
+        ) : img ? (
+          <img
+            src={img.src}
+            srcset={img.srcset}
+            sizes={GRID_SIZES}
+            width={img.width}
+            height={img.height}
+            alt={img.alt}
+            loading={eager ? 'eager' : 'lazy'}
+            decoding="async"
+          />
+        ) : null
+      }
+      {
+        hasVideo && (
+          <span class="tile__play" aria-hidden="true">
+            <svg width="40" height="40" viewBox="0 0 40 40" fill="none">
+              <circle cx="20" cy="20" r="19" stroke="currentColor" stroke-width="1.25" />
+              <path d="M16 13.5v13l10-6.5z" fill="currentColor" />
+            </svg>
+          </span>
+        )
+      }
+    </span>
+    <span class="tile__overlay">
+      <span class="tile__title">{item.title}</span>
+      {
+        isProduct && (
+          <PriceTag price={item.price} currency={item.currency} status={item.status} class="tile__price" />
+        )
+      }
+    </span>
+  </Tag>
+  <span class="tile__caption">
+    <span class="tile__caption-title">{item.title}</span>
+    {
+      isProduct && (
+        <PriceTag price={item.price} currency={item.currency} status={item.status} class="tile__caption-price" />
+      )
+    }
+  </span>
+</li>
+
+<style>
+  .tile {
+    min-width: 0;
+  }
+
+  .tile__link {
+    position: relative;
+    display: block;
+    width: 100%;
+    text-align: left;
+    color: var(--color-on-dark);
+  }
+
+  .tile__link:hover {
+    text-decoration: none;
+  }
+
+  .tile__media {
+    position: relative;
+    display: block;
+    aspect-ratio: 1;
+    overflow: hidden;
+  }
+
+  .tile__media img,
+  .tile__media video {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  .tile__play {
+    position: absolute;
+    inset: 0;
+    display: grid;
+    place-items: center;
+    color: var(--color-on-dark);
+    filter: drop-shadow(0 1px 6px rgba(0, 0, 0, 0.5));
+    transition: opacity var(--dur) var(--ease);
+    pointer-events: none;
+  }
+
+  .tile__overlay {
+    position: absolute;
+    inset: 0;
+    display: none;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: var(--space-1);
+    padding: var(--space-4);
+    background: var(--color-overlay);
+    text-align: center;
+    opacity: 0;
+    transition: opacity var(--dur) var(--ease);
+  }
+
+  .tile__title {
+    font-size: var(--text-base);
+    font-weight: 500;
+    letter-spacing: 0.02em;
+  }
+
+  .tile__price {
+    font-size: var(--text-sm);
+    color: rgba(255, 255, 255, 0.85);
+  }
+
+  .tile__caption {
+    display: flex;
+    justify-content: space-between;
+    gap: var(--space-3);
+    padding: var(--space-2) var(--space-2) var(--space-4);
+    font-size: var(--text-sm);
+  }
+
+  .tile__caption-title {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .tile__caption-price {
+    flex-shrink: 0;
+    color: var(--color-muted);
+  }
+
+  /* Hover-capable, wider screens: overlay on hover/focus, caption hidden. */
+  @media (hover: hover) and (min-width: 768px) {
+    .tile__overlay {
+      display: flex;
+    }
+
+    .tile__link:hover .tile__overlay,
+    .tile__link:focus-visible .tile__overlay {
+      opacity: 1;
+    }
+
+    .tile--video .tile__link:hover .tile__play,
+    .tile--video .tile__link:focus-visible .tile__play {
+      opacity: 0;
+    }
+
+    .tile__caption {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      padding: 0;
+      overflow: hidden;
+      clip-path: inset(50%);
+    }
+  }
+</style>

@@ -1,0 +1,156 @@
+---
+import type { LightboxItem } from '../types/lightbox';
+
+interface Props {
+  items: LightboxItem[];
+  label?: string;
+}
+
+const { items, label = 'Gallery viewer' } = Astro.props;
+// Escape "<" so the JSON can never close the script tag.
+const json = JSON.stringify(items).replace(/</g, '\\u003c');
+---
+
+{
+  items.length > 0 && (
+    <>
+      <dialog class="lightbox" id="lightbox" aria-label={label}>
+        <button type="button" class="lightbox__btn lightbox__close" data-lightbox-close aria-label="Close">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" aria-hidden="true">
+            <path d="M6 6l12 12M18 6L6 18" />
+          </svg>
+        </button>
+        <button type="button" class="lightbox__btn lightbox__prev" data-lightbox-prev aria-label="Previous">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="M15 5l-7 7 7 7" />
+          </svg>
+        </button>
+        <figure class="lightbox__figure">
+          <div class="lightbox__stage" data-lightbox-stage />
+          <figcaption class="lightbox__caption" data-lightbox-caption />
+        </figure>
+        <button type="button" class="lightbox__btn lightbox__next" data-lightbox-next aria-label="Next">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="M9 5l7 7-7 7" />
+          </svg>
+        </button>
+        <p class="visually-hidden" data-lightbox-counter aria-live="polite" />
+        <script type="application/json" data-lightbox-items set:html={json} />
+      </dialog>
+      <script>
+        import '../scripts/lightbox';
+      </script>
+    </>
+  )
+}
+
+<style>
+  .lightbox {
+    position: fixed;
+    inset: 0;
+    width: 100vw;
+    width: 100dvw;
+    height: 100vh;
+    height: 100dvh;
+    max-width: none;
+    max-height: none;
+    margin: 0;
+    padding: 0;
+    border: 0;
+    background: rgba(10, 10, 10, 0.96);
+    color: var(--color-on-dark);
+  }
+
+  .lightbox::backdrop {
+    background: transparent;
+  }
+
+  .lightbox[open] {
+    display: grid;
+    grid-template-columns: 3.5rem 1fr 3.5rem;
+    grid-template-rows: 3.5rem 1fr;
+    grid-template-areas:
+      '. . close'
+      'prev figure next';
+  }
+
+  .lightbox__figure {
+    grid-area: figure;
+    display: flex;
+    flex-direction: column;
+    min-height: 0;
+    min-width: 0;
+    padding-bottom: var(--space-5);
+  }
+
+  .lightbox__stage {
+    flex: 1 1 auto;
+    min-height: 0;
+    display: grid;
+    place-items: center;
+  }
+
+  .lightbox__stage :global(img),
+  .lightbox__stage :global(video) {
+    max-width: 100%;
+    max-height: calc(100dvh - 3.5rem - 4.5rem);
+    width: auto;
+    height: auto;
+    object-fit: contain;
+  }
+
+  .lightbox__caption {
+    flex: 0 0 auto;
+    padding-top: var(--space-3);
+    text-align: center;
+    font-size: var(--text-sm);
+    color: rgba(255, 255, 255, 0.8);
+    min-height: 1.5em;
+  }
+
+  .lightbox__btn {
+    display: grid;
+    place-items: center;
+    width: 3.5rem;
+    color: rgba(255, 255, 255, 0.75);
+    transition: color var(--dur) var(--ease);
+  }
+
+  .lightbox__btn:hover {
+    color: var(--color-on-dark);
+  }
+
+  .lightbox__btn:focus-visible {
+    outline-color: var(--color-on-dark);
+    outline-offset: -4px;
+  }
+
+  .lightbox__close {
+    grid-area: close;
+    height: 3.5rem;
+  }
+
+  .lightbox__prev {
+    grid-area: prev;
+  }
+
+  .lightbox__next {
+    grid-area: next;
+  }
+
+  .lightbox__prev[hidden],
+  .lightbox__next[hidden] {
+    visibility: hidden;
+    display: grid;
+  }
+
+  @media (max-width: 767px) {
+    .lightbox[open] {
+      grid-template-columns: 2.75rem 1fr 2.75rem;
+    }
+
+    .lightbox__btn {
+      width: 2.75rem;
+    }
+  }
+</style>

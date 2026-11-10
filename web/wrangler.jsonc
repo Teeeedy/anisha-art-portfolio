@@ -1,0 +1,11 @@
+{
+  // Cloudflare Pages configuration for the Astro frontend.
+  // Root directory in the Pages project: `web`
+  // Build command: `npm run build`  ·  Output directory: `dist`
+  "name": "blends-by-a",
+  "pages_build_output_dir": "./dist",
+  "compatibility_date": "2026-11-01",
+  // nodejs_compat is harmless for a static site and required once the
+  // @astrojs/cloudflare adapter + server endpoints (Stripe) are added.
+  "compatibility_flags": ["nodejs_compat"]
+}

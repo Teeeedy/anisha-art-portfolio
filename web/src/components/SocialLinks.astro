@@ -1,0 +1,90 @@
+---
+interface Props {
+  instagramUrl?: string | null;
+  youtubeUrl?: string | null;
+  email?: string | null;
+  /** `light` for use on dark imagery (hero). */
+  tone?: 'dark' | 'light';
+  size?: number;
+  class?: string;
+}
+
+const { instagramUrl, youtubeUrl, email, tone = 'dark', size = 20, class: className } = Astro.props;
+
+type Link = { href: string; label: string; icon: 'instagram' | 'youtube' | 'mail'; external: boolean };
+
+const links: Link[] = [];
+if (instagramUrl) links.push({ href: instagramUrl, label: 'Instagram', icon: 'instagram', external: true });
+if (youtubeUrl) links.push({ href: youtubeUrl, label: 'YouTube', icon: 'youtube', external: true });
+if (email) links.push({ href: `mailto:${email}`, label: 'Email', icon: 'mail', external: false });
+---
+
+{
+  links.length > 0 && (
+    <ul class:list={['social', `social--${tone}`, className]}>
+      {links.map((link) => (
+        <li>
+          <a
+            href={link.href}
+            aria-label={link.label}
+            title={link.label}
+            target={link.external ? '_blank' : undefined}
+            rel={link.external ? 'noopener noreferrer' : undefined}
+          >
+            {link.icon === 'instagram' && (
+              <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <rect x="2" y="2" width="20" height="20" rx="5" ry="5" />
+                <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z" />
+                <line x1="17.5" y1="6.5" x2="17.51" y2="6.5" />
+              </svg>
+            )}
+            {link.icon === 'youtube' && (
+              <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <path d="M22.54 6.42a2.78 2.78 0 0 0-1.94-2C18.88 4 12 4 12 4s-6.88 0-8.6.46a2.78 2.78 0 0 0-1.94 2A29 29 0 0 0 1 11.75a29 29 0 0 0 .46 5.33A2.78 2.78 0 0 0 3.4 19c1.72.46 8.6.46 8.6.46s6.88 0 8.6-.46a2.78 2.78 0 0 0 1.94-2 29 29 0 0 0 .46-5.25 29 29 0 0 0-.46-5.33z" />
+                <polygon points="9.75 15.02 15.5 11.75 9.75 8.48 9.75 15.02" />
+              </svg>
+            )}
+            {link.icon === 'mail' && (
+              <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z" />
+                <polyline points="22,6 12,13 2,6" />
+              </svg>
+            )}
+          </a>
+        </li>
+      ))}
+    </ul>
+  )
+}
+
+<style>
+  .social {
+    display: flex;
+    align-items: center;
+    gap: var(--space-4);
+  }
+
+  .social a {
+    display: inline-flex;
+    padding: var(--space-2);
+    margin: calc(var(--space-2) * -1);
+    color: var(--color-muted);
+    transition: color var(--dur) var(--ease);
+  }
+
+  .social a:hover {
+    color: var(--color-fg);
+  }
+
+  .social--light a {
+    color: rgba(255, 255, 255, 0.8);
+  }
+
+  .social--light a:hover {
+    color: var(--color-on-dark);
+  }
+
+  .social--light a:focus-visible {
+    outline-color: var(--color-on-dark);
+  }
+</style>

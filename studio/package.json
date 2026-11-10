@@ -1,0 +1,27 @@
+{
+  "name": "@blends-by-a/studio",
+  "private": true,
+  "version": "0.1.0",
+  "description": "Sanity Studio for Blends by A",
+  "type": "module",
+  "scripts": {
+    "dev": "sanity dev",
+    "start": "sanity start",
+    "build": "sanity build",
+    "deploy": "sanity deploy",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@sanity/icons": "^5.3.0",
+    "@sanity/vision": "^6.22.0",
+    "react": "^19.2.2",
+    "react-dom": "^19.2.2",
+    "sanity": "^6.22.0",
+    "styled-components": "^6.1.15"
+  },
+  "devDependencies": {
+    "@types/node": "^24.19.2",
+    "@types/react": "^19.3.0",
+    "typescript": "^5.9.3"
+  }
+}

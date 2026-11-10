@@ -1,0 +1,45 @@
+---
+import type { SiteSettings } from '../types/siteSettings';
+import SocialLinks from './SocialLinks.astro';
+
+interface Props {
+  settings: SiteSettings;
+  siteTitle: string;
+}
+
+const { settings, siteTitle } = Astro.props;
+const year = new Date().getFullYear();
+---
+
+<footer class="footer">
+  <div class="container footer__inner">
+    <SocialLinks
+      instagramUrl={settings.instagramUrl}
+      youtubeUrl={settings.youtubeUrl}
+      email={settings.email}
+    />
+    <p class="footer__copy">© {year} {siteTitle}. All rights reserved.</p>
+  </div>
+</footer>
+
+<style>
+  .footer {
+    border-top: 1px solid var(--color-line);
+    padding-block: var(--space-6);
+    margin-top: var(--space-8);
+  }
+
+  .footer__inner {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-4);
+  }
+
+  .footer__copy {
+    font-size: var(--text-xs);
+    letter-spacing: 0.04em;
+    color: var(--color-muted);
+  }
+</style>

@@ -1,0 +1,44 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import Grid from '../../components/Grid.astro';
+import { artworksQuery } from '../../lib/queries';
+import { sanityFetch } from '../../lib/sanity';
+import type { ArtworkSummary } from '../../types/artwork';
+import type { GridItem } from '../../types/grid';
+
+const artworks = await sanityFetch<ArtworkSummary[]>(artworksQuery, {}, []);
+
+const items: GridItem[] = artworks.map((artwork) => ({
+  id: artwork._id,
+  title: artwork.title,
+  href: `/art/${artwork.slug}`,
+  image: artwork.images?.[0] ?? null,
+  price: artwork.price ?? null,
+  currency: artwork.currency ?? 'AUD',
+  status: artwork.status ?? 'available',
+  sku: artwork.sku ?? null,
+}));
+---
+
+<BaseLayout title="Art" description="Original artworks by Anisha — Blends by A.">
+  <section class="art">
+    <div class="container">
+      <h1 class="page-title">Art</h1>
+    </div>
+    {
+      items.length > 0 ? (
+        <Grid items={items} columns={4} label="Artworks" />
+      ) : (
+        <div class="container">
+          <p class="muted">New work is on its way — check back soon.</p>
+        </div>
+      )
+    }
+  </section>
+</BaseLayout>
+
+<style>
+  .art {
+    padding-top: var(--space-6);
+  }
+</style>
