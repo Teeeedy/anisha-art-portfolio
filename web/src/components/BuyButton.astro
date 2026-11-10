@@ -1,0 +1,61 @@
+---
+/**
+ * BuyButton — STUB.
+ * Renders nothing unless PUBLIC_ENABLE_COMMERCE="true". When Stripe is wired up
+ * a small client script will POST the data attributes below to /api/checkout and
+ * redirect to the returned Checkout Session URL. See README → "Adding Stripe later".
+ */
+import { isCommerceEnabled } from '../lib/flags';
+import { formatPrice } from '../lib/price';
+import type { BuyButtonProps } from '../types/commerce';
+
+type Props = BuyButtonProps;
+
+const {
+  artworkId,
+  title,
+  priceInCents,
+  currency = 'AUD',
+  sku,
+  variantSku,
+  quantity = 1,
+  label,
+  class: className,
+} = Astro.props;
+
+const enabled = isCommerceEnabled();
+const code = currency ?? 'AUD';
+---
+
+{
+  enabled && (
+    <div class:list={['buy', className]}>
+      <button
+        type="button"
+        class="btn btn--block"
+        data-buy-button
+        data-artwork-id={artworkId}
+        data-sku={sku ?? undefined}
+        data-variant-sku={variantSku ?? undefined}
+        data-price={priceInCents}
+        data-currency={code}
+        data-quantity={quantity ?? 1}
+        data-status="available"
+        aria-describedby="buy-note"
+        disabled
+      >
+        {label ?? `Buy — ${formatPrice(priceInCents, code)}`}
+      </button>
+      <p id="buy-note" class="small muted">
+        Online checkout for “{title}” is coming soon.
+      </p>
+    </div>
+  )
+}
+
+<style>
+  .buy {
+    display: grid;
+    gap: var(--space-3);
+  }
+</style>

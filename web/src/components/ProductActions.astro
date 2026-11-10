@@ -1,0 +1,77 @@
+---
+/**
+ * Decides what the purchase area of /art/[slug] shows:
+ *  - commerce on  + available (+ price) → BuyButton (stub)
+ *  - commerce off + available           → EnquiryForm
+ *  - sold / reserved / not-for-sale     → status copy + link to Contact
+ */
+import type { Artwork } from '../types/artwork';
+import { artworkStatus } from '../types/artwork';
+import { isCommerceEnabled } from '../lib/flags';
+import BuyButton from './BuyButton.astro';
+import EnquiryForm from './EnquiryForm.astro';
+
+interface Props {
+  artwork: Artwork;
+  email?: string | null;
+}
+
+const { artwork, email } = Astro.props;
+const status = artworkStatus(artwork);
+const hasPrice = typeof artwork.price === 'number';
+const showBuy = isCommerceEnabled() && status === 'available' && hasPrice;
+
+const statusCopy: Record<Exclude<typeof status, 'available'>, string> = {
+  sold: 'This piece has found a home.',
+  reserved: 'This piece is currently reserved.',
+  'not-for-sale': 'This piece is not for sale.',
+};
+---
+
+<div
+  class="product-actions"
+  data-artwork-id={artwork._id}
+  data-sku={artwork.sku ?? undefined}
+  data-price={hasPrice ? artwork.price : undefined}
+  data-currency={artwork.currency ?? 'AUD'}
+  data-status={status}
+>
+  {
+    status === 'available' ? (
+      showBuy ? (
+        <BuyButton
+          artworkId={artwork._id}
+          title={artwork.title}
+          sku={artwork.sku}
+          priceInCents={artwork.price as number}
+          currency={artwork.currency ?? 'AUD'}
+          quantity={artwork.quantity ?? 1}
+        />
+      ) : (
+        <EnquiryForm artwork={artwork} email={email} />
+      )
+    ) : (
+      <div class="product-actions__status">
+        <p>{statusCopy[status]}</p>
+        <p class="muted small">
+          Interested in a commission or similar work?
+        </p>
+        <a class="btn btn--ghost" href="/contact">Get in touch</a>
+      </div>
+    )
+  }
+</div>
+
+<style>
+  .product-actions {
+    margin-top: var(--space-6);
+    padding-top: var(--space-5);
+    border-top: 1px solid var(--color-line);
+  }
+
+  .product-actions__status {
+    display: grid;
+    gap: var(--space-3);
+    justify-items: start;
+  }
+</style>

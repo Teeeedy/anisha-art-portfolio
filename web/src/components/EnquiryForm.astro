@@ -1,0 +1,76 @@
+---
+import type { Artwork } from '../types/artwork';
+
+interface Props {
+  artwork: Pick<Artwork, '_id' | 'title' | 'sku' | 'slug'>;
+  email?: string | null;
+}
+
+const { artwork, email } = Astro.props;
+const endpoint = import.meta.env.PUBLIC_FORMSPREE_ENDPOINT?.trim() || '';
+const pageUrl = Astro.site
+  ? new URL(`/art/${artwork.slug}`, Astro.site).href
+  : `/art/${artwork.slug}`;
+---
+
+<form
+  class="form enquiry-form"
+  method="POST"
+  action={endpoint || undefined}
+  novalidate
+  data-form
+  data-success-message="Thanks — your enquiry has been sent. I'll be in touch soon."
+>
+  <h2 class="enquiry-form__title" id="enquire">Enquire to buy</h2>
+
+  <input type="hidden" name="_subject" value={`Artwork enquiry: ${artwork.title}`} />
+  <input type="hidden" name="artwork" value={artwork.title} />
+  <input type="hidden" name="sku" value={artwork.sku ?? ''} />
+  <input type="hidden" name="artworkId" value={artwork._id} />
+  <input type="hidden" name="url" value={pageUrl} />
+
+  <div class="field">
+    <label class="field__label" for="enq-name">Name</label>
+    <input class="field__input" id="enq-name" name="name" type="text" autocomplete="name" required data-validate />
+    <p class="field__error" data-error-for="name" aria-live="polite"></p>
+  </div>
+
+  <div class="field">
+    <label class="field__label" for="enq-email">Email</label>
+    <input class="field__input" id="enq-email" name="email" type="email" autocomplete="email" required data-validate />
+    <p class="field__error" data-error-for="email" aria-live="polite"></p>
+  </div>
+
+  <div class="field">
+    <label class="field__label" for="enq-message">Message</label>
+    <textarea class="field__input" id="enq-message" name="message" rows="4" required minlength="10" data-validate
+    ></textarea>
+    <p class="field__error" data-error-for="message" aria-live="polite"></p>
+  </div>
+
+  <p class="hp" aria-hidden="true">
+    <label>Leave this field empty <input type="text" name="_gotcha" tabindex="-1" autocomplete="off" /></label>
+  </p>
+
+  <button class="btn btn--block" type="submit">Send enquiry</button>
+  <p class="form__status" data-form-status role="status" aria-live="polite"></p>
+
+  {
+    email && (
+      <p class="small muted">
+        Prefer email? <a href={`mailto:${email}?subject=${encodeURIComponent(`Artwork enquiry: ${artwork.title}`)}`}>{email}</a>
+      </p>
+    )
+  }
+</form>
+
+<script>
+  import '../scripts/forms';
+</script>
+
+<style>
+  .enquiry-form__title {
+    font-size: var(--text-md);
+    font-weight: 500;
+  }
+</style>

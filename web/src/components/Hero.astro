@@ -1,0 +1,160 @@
+---
+import type { SiteSettings } from '../types/siteSettings';
+import { LARGE_WIDTHS, responsiveImage } from '../lib/image';
+import { NAV_ITEMS } from '../lib/site';
+import SocialLinks from './SocialLinks.astro';
+
+interface Props {
+  settings: SiteSettings;
+  siteTitle: string;
+}
+
+const { settings, siteTitle } = Astro.props;
+const image = responsiveImage(settings.heroImage, { widths: LARGE_WIDTHS, quality: 75 });
+const video = settings.heroVideo?.url ? settings.heroVideo : null;
+---
+
+<section class="hero">
+  {
+    video ? (
+      <video
+        class="hero__media"
+        autoplay
+        muted
+        loop
+        playsinline
+        preload="auto"
+        poster={image?.src}
+        aria-hidden="true"
+        tabindex="-1"
+      >
+        <source src={video.url} type={video.mimeType ?? 'video/mp4'} />
+      </video>
+    ) : image ? (
+      <img
+        class="hero__media"
+        src={image.src}
+        srcset={image.srcset}
+        sizes="100vw"
+        width={image.width}
+        height={image.height}
+        alt={image.alt}
+        fetchpriority="high"
+        decoding="async"
+      />
+    ) : (
+      <div class="hero__media hero__media--empty" aria-hidden="true" />
+    )
+  }
+  <div class="hero__scrim" aria-hidden="true"></div>
+
+  <div class="hero__content">
+    <h1 class="hero__title">{siteTitle}</h1>
+    <nav class="hero__nav" aria-label="Sections">
+      <ul>
+        {
+          NAV_ITEMS.map((item) => (
+            <li>
+              <a href={item.href}>{item.label}</a>
+            </li>
+          ))
+        }
+      </ul>
+    </nav>
+  </div>
+
+  <div class="hero__social">
+    <SocialLinks
+      tone="light"
+      size={22}
+      instagramUrl={settings.instagramUrl}
+      youtubeUrl={settings.youtubeUrl}
+      email={settings.email}
+    />
+  </div>
+</section>
+
+<style>
+  .hero {
+    position: relative;
+    display: grid;
+    place-items: center;
+    height: 100svh;
+    min-height: 30rem;
+    overflow: hidden;
+    background: #141414;
+    color: var(--color-on-dark);
+  }
+
+  .hero__media {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  .hero__media--empty {
+    background: linear-gradient(160deg, #1b1b1b, #2c2c2c);
+  }
+
+  .hero__scrim {
+    position: absolute;
+    inset: 0;
+    background:
+      linear-gradient(to bottom, rgba(0, 0, 0, 0.35), rgba(0, 0, 0, 0.1) 40%, rgba(0, 0, 0, 0.45));
+  }
+
+  .hero__content {
+    position: relative;
+    z-index: 1;
+    text-align: center;
+    padding-inline: var(--gutter);
+  }
+
+  .hero__title {
+    font-size: var(--text-hero);
+    font-weight: 300;
+    letter-spacing: 0.35em;
+    text-indent: 0.35em; /* visually centre letter-spaced text */
+    text-transform: uppercase;
+    line-height: 1.1;
+  }
+
+  .hero__nav {
+    margin-top: var(--space-5);
+  }
+
+  .hero__nav ul {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: var(--space-2) var(--space-5);
+  }
+
+  .hero__nav a {
+    font-size: var(--text-sm);
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: rgba(255, 255, 255, 0.85);
+    padding-block: var(--space-2);
+  }
+
+  .hero__nav a:hover {
+    color: var(--color-on-dark);
+  }
+
+  .hero__social {
+    position: absolute;
+    bottom: calc(var(--space-6) + env(safe-area-inset-bottom));
+    left: 0;
+    right: 0;
+    z-index: 1;
+    display: flex;
+    justify-content: center;
+  }
+
+  .hero :focus-visible {
+    outline-color: var(--color-on-dark);
+  }
+</style>

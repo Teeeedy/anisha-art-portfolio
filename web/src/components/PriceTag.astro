@@ -1,0 +1,49 @@
+---
+import { formatPrice } from '../lib/price';
+import { artworkStatus, type ArtworkStatus } from '../types/artwork';
+
+interface Props {
+  /** Integer cents. */
+  price?: number | null;
+  currency?: string | null;
+  status?: ArtworkStatus | null;
+  class?: string;
+}
+
+const { price, currency, status, class: className } = Astro.props;
+const resolved = artworkStatus({ status });
+const code = currency ?? 'AUD';
+
+let label: string | null = null;
+if (resolved === 'sold') label = 'Sold';
+else if (resolved === 'reserved') label = 'Reserved';
+else if (resolved === 'available' && typeof price === 'number') label = formatPrice(price, code);
+// not-for-sale (or available without a price) renders nothing.
+---
+
+{
+  label && (
+    <span
+      class:list={['price-tag', `price-tag--${resolved}`, className]}
+      data-status={resolved}
+      data-price={typeof price === 'number' ? price : undefined}
+      data-currency={code}
+    >
+      {label}
+    </span>
+  )
+}
+
+<style>
+  .price-tag {
+    font-variant-numeric: tabular-nums;
+    letter-spacing: 0.02em;
+  }
+
+  .price-tag--sold,
+  .price-tag--reserved {
+    font-size: var(--text-xs);
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+  }
+</style>

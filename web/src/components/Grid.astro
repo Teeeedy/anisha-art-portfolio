@@ -1,0 +1,38 @@
+---
+import type { GridItem } from '../types/grid';
+import GridTile from './GridTile.astro';
+
+interface Props {
+  items: GridItem[];
+  /** Desktop column count. Mobile is always 2. */
+  columns?: 2 | 3 | 4;
+  label?: string;
+  /** How many tiles load eagerly (above the fold). */
+  eagerCount?: number;
+  class?: string;
+}
+
+const { items, columns = 4, label, eagerCount = 4, class: className } = Astro.props;
+---
+
+<ul class:list={['grid', className]} style={`--cols: ${columns}`} aria-label={label}>
+  {items.map((item, i) => <GridTile item={item} eager={i < eagerCount} />)}
+</ul>
+
+<script>
+  import '../scripts/hoverVideo';
+</script>
+
+<style>
+  .grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: var(--grid-gap);
+  }
+
+  @media (min-width: 768px) {
+    .grid {
+      grid-template-columns: repeat(var(--cols, 4), minmax(0, 1fr));
+    }
+  }
+</style>
