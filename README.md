@@ -1,4 +1,4 @@
-# Blends by A
+# Blendsbya
 
 Art + make up portfolio for Anisha. npm-workspaces monorepo:
 
@@ -71,7 +71,7 @@ npm run build                    # static build → web/dist
 | `PUBLIC_SANITY_DATASET`    | `development` locally and on the dev preview, `production` on main |
 | `PUBLIC_FORMSPREE_ENDPOINT`| Formspree form URL used by the enquiry + contact forms             |
 | `PUBLIC_ENABLE_COMMERCE`   | `false` (default) shows enquiry forms; `true` shows the Buy button |
-| `PUBLIC_SITE_URL`          | Optional canonical URL (custom domain). Falls back to `CF_PAGES_URL` |
+| `PUBLIC_SITE_URL`          | Canonical URL: `https://blendsbya.art` in production, the dev alias in preview |
 
 Without `PUBLIC_SANITY_PROJECT_ID` the site still builds, with every page in its
 empty state — handy for CI and first clones.
@@ -105,7 +105,15 @@ Create a Pages project connected to this repository with:
 
 `web/wrangler.jsonc` records the output dir and compatibility date. Preview
 deployments are automatic for every non-production branch, so `dev` gets its own
-`https://dev.<project>.pages.dev` URL.
+branch alias.
+
+Live URLs:
+
+- Production (`main`): <https://blendsbya.art> (custom domain; `anisha-art-portfolio.pages.dev` also resolves)
+- Preview (`dev`): <https://dev.anisha-art-portfolio.pages.dev>
+
+Set `PUBLIC_SITE_URL` to the matching URL in each environment so canonical and
+Open Graph links use the clean domain rather than the per-deployment hash URL.
 
 ### Environment variables (Settings → Environment variables)
 

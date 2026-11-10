@@ -1,8 +1,8 @@
 {
-  "name": "@blends-by-a/web",
+  "name": "@blendsbya/web",
   "private": true,
   "version": "0.1.0",
-  "description": "Astro frontend for Blends by A",
+  "description": "Astro frontend for Blendsbya",
   "type": "module",
   "scripts": {
     "dev": "astro dev",

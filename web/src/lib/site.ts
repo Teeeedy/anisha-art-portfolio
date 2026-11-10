@@ -2,9 +2,9 @@ import type { SiteSettings } from '../types/siteSettings';
 import { siteSettingsQuery } from './queries';
 import { sanityFetch } from './sanity';
 
-export const DEFAULT_SITE_TITLE = 'Blends by A';
+export const DEFAULT_SITE_TITLE = 'Blendsbya';
 export const DEFAULT_DESCRIPTION =
-  'Blends by A — original artwork and make up artistry by Anisha.';
+  'Blendsbya — original artwork and make up artistry by Anisha.';
 
 export const NAV_ITEMS = [
   { label: 'Art', href: '/art' },

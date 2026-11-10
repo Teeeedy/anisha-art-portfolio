@@ -42,6 +42,6 @@ function workspace(dataset: 'production' | 'development', title: string): Worksp
 }
 
 export default defineConfig([
-  workspace('production', 'Blends by A (production)'),
-  workspace('development', 'Blends by A (development)'),
+  workspace('production', 'Blendsbya (production)'),
+  workspace('development', 'Blendsbya (development)'),
 ])
