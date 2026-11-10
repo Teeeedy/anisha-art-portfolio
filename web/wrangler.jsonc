@@ -2,10 +2,39 @@
   // Cloudflare Pages configuration for the Astro frontend.
   // Root directory in the Pages project: `web`
   // Build command: `npm run build`  ·  Output directory: `dist`
+  //
+  // IMPORTANT: when this file exists, Cloudflare Pages reads the build
+  // variables from here and IGNORES the ones set in the dashboard. Keep all
+  // PUBLIC_* values below. Secrets (none yet) must never go in this file; they
+  // are added in the dashboard as "Secret" and only reach server functions.
   "name": "blendsbya",
   "pages_build_output_dir": "./dist",
   "compatibility_date": "2026-11-01",
   // nodejs_compat is harmless for a static site and required once the
   // @astrojs/cloudflare adapter + server endpoints (Stripe) are added.
-  "compatibility_flags": ["nodejs_compat"]
+  "compatibility_flags": ["nodejs_compat"],
+
+  // Production (branch `main`)
+  "vars": {
+    "NODE_VERSION": "22",
+    "PUBLIC_SANITY_PROJECT_ID": "il16wbqt",
+    "PUBLIC_SANITY_DATASET": "production",
+    "PUBLIC_FORMSPREE_ENDPOINT": "https://formspree.io/f/xbggnygv",
+    "PUBLIC_ENABLE_COMMERCE": "false",
+    "PUBLIC_SITE_URL": "https://blendsbya.art"
+  },
+
+  "env": {
+    // Preview deployments (branch `dev` and any other non-production branch)
+    "preview": {
+      "vars": {
+        "NODE_VERSION": "22",
+        "PUBLIC_SANITY_PROJECT_ID": "il16wbqt",
+        "PUBLIC_SANITY_DATASET": "development",
+        "PUBLIC_FORMSPREE_ENDPOINT": "https://formspree.io/f/xbggnygv",
+        "PUBLIC_ENABLE_COMMERCE": "false",
+        "PUBLIC_SITE_URL": "https://dev.anisha-art-portfolio.pages.dev"
+      }
+    }
+  }
 }
