@@ -1,8 +1,8 @@
 {
-  "name": "blends-by-a",
+  "name": "blendsbya",
   "private": true,
   "version": "0.1.0",
-  "description": "Blends by A — art and make up portfolio. Sanity Studio (/studio) + Astro frontend (/web).",
+  "description": "Blendsbya — art and make up portfolio. Sanity Studio (/studio) + Astro frontend (/web).",
   "workspaces": [
     "studio",
     "web"

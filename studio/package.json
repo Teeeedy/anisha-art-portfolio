@@ -1,8 +1,8 @@
 {
-  "name": "@blends-by-a/studio",
+  "name": "@blendsbya/studio",
   "private": true,
   "version": "0.1.0",
-  "description": "Sanity Studio for Blends by A",
+  "description": "Sanity Studio for Blendsbya",
   "type": "module",
   "scripts": {
     "dev": "sanity dev",

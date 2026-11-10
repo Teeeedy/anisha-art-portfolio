@@ -11,7 +11,7 @@ export const siteSettings = defineType({
       name: 'siteTitle',
       title: 'Site title',
       type: 'string',
-      initialValue: 'Blends by A',
+      initialValue: 'Blendsbya',
       validation: (Rule) => Rule.required(),
     }),
     defineField({

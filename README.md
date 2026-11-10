@@ -1,4 +1,4 @@
-# Blends by A
+# Blendsbya
 
 Art + make up portfolio for Anisha. npm-workspaces monorepo:
 
