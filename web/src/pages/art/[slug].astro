@@ -1,0 +1,272 @@
+---
+import type { GetStaticPaths } from 'astro';
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import Grid from '../../components/Grid.astro';
+import PortableText from '../../components/PortableText.astro';
+import PriceTag from '../../components/PriceTag.astro';
+import ProductActions from '../../components/ProductActions.astro';
+import { LARGE_WIDTHS, hasAsset, responsiveImage, type ResponsiveImage } from '../../lib/image';
+import { portableTextToPlain } from '../../lib/portableText';
+import { artworksWithDescriptionQuery } from '../../lib/queries';
+import { sanityFetch } from '../../lib/sanity';
+import { getSiteSettings } from '../../lib/site';
+import { artworkStatus, type Artwork, type ArtworkStatus } from '../../types/artwork';
+import type { GridItem } from '../../types/grid';
+
+export const getStaticPaths = (async () => {
+  // One request for everything; "More work" is derived from the same list.
+  const artworks = await sanityFetch<Artwork[]>(artworksWithDescriptionQuery, {}, []);
+  return artworks.map((artwork, i) => {
+    const related = [...artworks.slice(i + 1), ...artworks.slice(0, i)].slice(0, 4);
+    return { params: { slug: artwork.slug }, props: { artwork, related } };
+  });
+}) satisfies GetStaticPaths;
+
+interface Props {
+  artwork: Artwork;
+  related: Artwork[];
+}
+
+const { artwork, related } = Astro.props;
+const settings = await getSiteSettings();
+
+const gallery = (artwork.images ?? [])
+  .filter(hasAsset)
+  .map((image) => ({
+    full: responsiveImage(image, { widths: LARGE_WIDTHS, quality: 85 }) as ResponsiveImage,
+    thumb: responsiveImage(image, { widths: [160, 240, 320], aspectRatio: 1 }) as ResponsiveImage,
+  }));
+const main = gallery[0]?.full;
+
+const status = artworkStatus(artwork);
+const hasPrice = typeof artwork.price === 'number';
+const statusLabel: Record<ArtworkStatus, string> = {
+  available: 'Available',
+  sold: 'Sold',
+  reserved: 'Reserved',
+  'not-for-sale': 'Not for sale',
+};
+// PriceTag already prints Sold/Reserved; only add a label where it does not.
+const showStatusLabel = status === 'available' ? hasPrice : status === 'not-for-sale';
+
+const meta = [artwork.medium, artwork.size, artwork.year].filter(Boolean).join(' · ');
+const description =
+  portableTextToPlain(artwork.description) || [artwork.title, meta].filter(Boolean).join(' — ');
+
+const relatedItems: GridItem[] = related.map((item) => ({
+  id: item._id,
+  title: item.title,
+  href: `/art/${item.slug}`,
+  image: item.images?.[0] ?? null,
+  price: item.price ?? null,
+  currency: item.currency ?? 'AUD',
+  status: item.status ?? 'available',
+  sku: item.sku ?? null,
+}));
+---
+
+<BaseLayout title={artwork.title} description={description} ogImage={main?.src}>
+  <article
+    class="product container"
+    data-artwork-id={artwork._id}
+    data-sku={artwork.sku ?? undefined}
+    data-price={hasPrice ? artwork.price : undefined}
+    data-currency={artwork.currency ?? 'AUD'}
+    data-status={status}
+  >
+    <div class="product__gallery" data-gallery>
+      <div class="product__main placeholder">
+        {
+          main ? (
+            <img
+              data-gallery-main
+              src={main.src}
+              srcset={main.srcset}
+              sizes="(min-width: 900px) 60vw, 100vw"
+              width={main.width}
+              height={main.height}
+              alt={main.alt}
+              fetchpriority="high"
+              decoding="async"
+            />
+          ) : (
+            <div class="product__main-empty" aria-hidden="true" />
+          )
+        }
+      </div>
+      {
+        gallery.length > 1 && (
+          <ul class="product__thumbs" aria-label="More views">
+            {gallery.map(({ full, thumb }, i) => (
+              <li>
+                <button
+                  type="button"
+                  class="product__thumb"
+                  data-gallery-thumb
+                  data-src={full.src}
+                  data-srcset={full.srcset}
+                  data-alt={full.alt}
+                  data-width={full.width}
+                  data-height={full.height}
+                  aria-pressed={i === 0 ? 'true' : 'false'}
+                  aria-label={`Show image ${i + 1} of ${gallery.length}`}
+                >
+                  <img
+                    src={thumb.src}
+                    srcset={thumb.srcset}
+                    sizes="120px"
+                    width={thumb.width}
+                    height={thumb.height}
+                    alt=""
+                    loading="lazy"
+                    decoding="async"
+                  />
+                </button>
+              </li>
+            ))}
+          </ul>
+        )
+      }
+    </div>
+
+    <div class="product__info">
+      <h1 class="product__title">{artwork.title}</h1>
+      {meta && <p class="product__meta">{meta}</p>}
+
+      <PortableText value={artwork.description} class="product__description" />
+
+      <p class="product__price">
+        <PriceTag price={artwork.price} currency={artwork.currency} status={status} />
+        {showStatusLabel && <span class="status-label">{statusLabel[status]}</span>}
+      </p>
+
+      <ProductActions artwork={artwork} email={settings.email} />
+    </div>
+  </article>
+
+  {
+    relatedItems.length > 0 && (
+      <section class="more container">
+        <h2 class="more__title">More work</h2>
+        <Grid items={relatedItems} columns={4} label="More work" eagerCount={0} />
+      </section>
+    )
+  }
+</BaseLayout>
+
+<script>
+  import '../../scripts/thumbnails';
+</script>
+
+<style>
+  .product {
+    display: grid;
+    gap: var(--space-6);
+    padding-block: var(--space-5) var(--space-7);
+  }
+
+  @media (min-width: 900px) {
+    .product {
+      grid-template-columns: minmax(0, 3fr) minmax(0, 2fr);
+      gap: var(--space-8);
+      padding-top: var(--space-6);
+    }
+  }
+
+  .product__gallery {
+    display: grid;
+    gap: var(--space-3);
+    align-content: start;
+  }
+
+  .product__main {
+    display: grid;
+    place-items: center;
+    min-height: 16rem;
+  }
+
+  .product__main img {
+    width: 100%;
+    height: auto;
+    max-height: 85svh;
+    object-fit: contain;
+  }
+
+  .product__main-empty {
+    width: 100%;
+    aspect-ratio: 4 / 3;
+  }
+
+  .product__thumbs {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-2);
+  }
+
+  .product__thumb {
+    display: block;
+    width: 4.5rem;
+    aspect-ratio: 1;
+    overflow: hidden;
+    opacity: 0.55;
+    outline-offset: 2px;
+    transition: opacity var(--dur) var(--ease);
+  }
+
+  .product__thumb img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  .product__thumb:hover,
+  .product__thumb[aria-pressed='true'] {
+    opacity: 1;
+  }
+
+  .product__thumb[aria-pressed='true'] {
+    box-shadow: 0 0 0 1px var(--color-fg);
+  }
+
+  .product__info {
+    display: grid;
+    gap: var(--space-4);
+    align-content: start;
+  }
+
+  .product__title {
+    font-size: var(--text-xl);
+    font-weight: 500;
+    line-height: 1.2;
+    letter-spacing: 0.01em;
+  }
+
+  .product__meta {
+    color: var(--color-muted);
+    margin-top: calc(var(--space-2) * -1);
+  }
+
+  .product__description {
+    margin-top: var(--space-2);
+  }
+
+  .product__price {
+    display: flex;
+    align-items: baseline;
+    gap: var(--space-3);
+    margin-top: var(--space-2);
+    font-size: var(--text-md);
+    font-weight: 500;
+  }
+
+  .more {
+    padding-top: var(--space-7);
+    border-top: 1px solid var(--color-line);
+  }
+
+  .more__title {
+    font-size: var(--text-md);
+    font-weight: 500;
+    margin-bottom: var(--space-4);
+  }
+</style>

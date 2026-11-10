@@ -1,0 +1,75 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import PortableText from '../components/PortableText.astro';
+import SanityImage from '../components/SanityImage.astro';
+import YouTubeEmbed from '../components/YouTubeEmbed.astro';
+import { hasAsset } from '../lib/image';
+import { portableTextToPlain } from '../lib/portableText';
+import { aboutQuery } from '../lib/queries';
+import { sanityFetch } from '../lib/sanity';
+import type { AboutPage } from '../types/about';
+
+const about = await sanityFetch<AboutPage>(aboutQuery, {}, {});
+const hasPortrait = hasAsset(about.portrait);
+const hasBio = Boolean(about.bio?.length);
+const description = portableTextToPlain(about.bio) || undefined;
+---
+
+<BaseLayout title="About" description={description}>
+  <section class:list={['about', 'container', 'section', { 'about--no-portrait': !hasPortrait }]}>
+    {
+      hasPortrait && (
+        <div class="about__portrait">
+          <SanityImage
+            image={about.portrait}
+            widths={[480, 768, 1024, 1440]}
+            sizes="(min-width: 900px) 40vw, 100vw"
+            loading="eager"
+            fetchpriority="high"
+            class="about__img"
+          />
+        </div>
+      )
+    }
+    <div class="about__body">
+      <h1 class="page-title">About Anisha</h1>
+      {hasBio ? <PortableText value={about.bio} /> : <p class="muted">A little about Anisha is coming soon.</p>}
+      <YouTubeEmbed url={about.youtubeUrl} title="Video by Anisha" class="about__video" />
+    </div>
+  </section>
+</BaseLayout>
+
+<style>
+  .about {
+    display: grid;
+    gap: var(--space-6);
+  }
+
+  @media (min-width: 900px) {
+    .about {
+      grid-template-columns: minmax(0, 2fr) minmax(0, 3fr);
+      gap: var(--space-8);
+      align-items: start;
+    }
+
+    .about--no-portrait {
+      grid-template-columns: minmax(0, 1fr);
+      max-width: 60rem;
+    }
+  }
+
+  .about__portrait :global(.about__img) {
+    width: 100%;
+    height: auto;
+  }
+
+  .about__body {
+    display: grid;
+    gap: var(--space-4);
+    align-content: start;
+  }
+
+  .about__body :global(.about__video) {
+    margin-top: var(--space-5);
+  }
+</style>

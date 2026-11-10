@@ -1,0 +1,14 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import Hero from '../components/Hero.astro';
+import { responsiveImage } from '../lib/image';
+import { DEFAULT_SITE_TITLE, getSiteSettings } from '../lib/site';
+
+const settings = await getSiteSettings();
+const siteTitle = settings.siteTitle?.trim() || DEFAULT_SITE_TITLE;
+const ogImage = responsiveImage(settings.heroImage, { widths: [1200], aspectRatio: 1.91 })?.src;
+---
+
+<BaseLayout headerVariant="overlay" hideFooter ogImage={ogImage}>
+  <Hero settings={settings} siteTitle={siteTitle} />
+</BaseLayout>

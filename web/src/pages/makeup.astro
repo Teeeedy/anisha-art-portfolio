@@ -1,0 +1,76 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import Grid from '../components/Grid.astro';
+import Lightbox from '../components/Lightbox.astro';
+import { LARGE_WIDTHS, hasAsset, responsiveImage } from '../lib/image';
+import { makeupLooksQuery } from '../lib/queries';
+import { sanityFetch } from '../lib/sanity';
+import type { GridItem } from '../types/grid';
+import type { LightboxItem } from '../types/lightbox';
+import type { MakeupLook } from '../types/makeupLook';
+
+const looks = await sanityFetch<MakeupLook[]>(makeupLooksQuery, {}, []);
+
+// Only looks that actually have media to show.
+const visible = looks.filter((look) => hasAsset(look.image) || Boolean(look.video?.url));
+
+const lightboxItems: LightboxItem[] = visible.map((look) => {
+  const image = responsiveImage(look.image, { widths: LARGE_WIDTHS, quality: 85 });
+  const caption = look.caption ?? undefined;
+
+  if (look.video?.url) {
+    return {
+      type: 'video',
+      src: look.video.url,
+      mimeType: look.video.mimeType,
+      poster: image?.src,
+      alt: look.image?.alt || look.title,
+      title: look.title,
+      caption,
+    };
+  }
+  return {
+    type: 'image',
+    src: image!.src,
+    srcset: image!.srcset,
+    sizes: '100vw',
+    width: image!.width,
+    height: image!.height,
+    alt: image!.alt || look.title,
+    title: look.title,
+    caption,
+  };
+});
+
+const items: GridItem[] = visible.map((look, i) => ({
+  id: look._id,
+  title: look.title,
+  lightboxIndex: i,
+  image: look.image ?? null,
+  videoUrl: look.video?.url ?? null,
+}));
+---
+
+<BaseLayout title="Make Up" description="Make up artistry by Anisha — Blends by A.">
+  <section class="makeup">
+    <div class="container">
+      <h1 class="page-title">Make up</h1>
+    </div>
+    {
+      items.length > 0 ? (
+        <Grid items={items} columns={4} label="Make up looks" />
+      ) : (
+        <div class="container">
+          <p class="muted">Looks are being added — check back soon.</p>
+        </div>
+      )
+    }
+  </section>
+  <Lightbox items={lightboxItems} label="Make up gallery" />
+</BaseLayout>
+
+<style>
+  .makeup {
+    padding-top: var(--space-6);
+  }
+</style>
