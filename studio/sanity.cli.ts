@@ -5,8 +5,10 @@ export default defineCliConfig({
     projectId: process.env.SANITY_STUDIO_PROJECT_ID,
     dataset: 'production',
   },
-  // `sanity deploy` publishes to <studioHost>.sanity.studio.
-  // You will be prompted for a host on first deploy, or hard-code it here:
-  // studioHost: 'blends-by-a',
+  // `sanity deploy` publishes to https://blends-by-a.sanity.studio
+  studioHost: 'blends-by-a',
+  deployment: {
+    appId: 'cnryr1hkbs5w4ormdip2t013',
+  },
   autoUpdates: true,
 })

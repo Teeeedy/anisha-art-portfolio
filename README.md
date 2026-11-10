@@ -50,8 +50,11 @@ to public datasets, so no token is required).
 Deploy the hosted Studio:
 
 ```bash
-npm run deploy:studio            # → https://<studioHost>.sanity.studio
+npm run deploy:studio            # → https://blends-by-a.sanity.studio
 ```
+
+Project id `il16wbqt`. The hosted Studio lives at
+<https://blends-by-a.sanity.studio> (`/production` and `/development` workspaces).
 
 ### Web (`/web`)
 

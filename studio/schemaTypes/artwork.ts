@@ -1,5 +1,5 @@
 import {defineArrayMember, defineField, defineType, type ValidationContext} from 'sanity'
-import {ImageIcon} from '@sanity/icons'
+import {ImageIcon} from '@sanity/icons/Image'
 
 export const ARTWORK_STATUSES = [
   {title: 'Available', value: 'available'},

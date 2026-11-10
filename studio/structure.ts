@@ -1,5 +1,8 @@
 import type {StructureResolver} from 'sanity/structure'
-import {CogIcon, UserIcon, ImagesIcon, SparklesIcon} from '@sanity/icons'
+import {CogIcon} from '@sanity/icons/Cog'
+import {UserIcon} from '@sanity/icons/User'
+import {ImagesIcon} from '@sanity/icons/Images'
+import {SparklesIcon} from '@sanity/icons/Sparkles'
 
 /** Document types that exist exactly once. */
 export const singletonTypes = new Set(['siteSettings', 'about'])

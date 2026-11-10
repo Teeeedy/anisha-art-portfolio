@@ -1,5 +1,5 @@
 import {defineField, defineType} from 'sanity'
-import {SparklesIcon} from '@sanity/icons'
+import {SparklesIcon} from '@sanity/icons/Sparkles'
 
 export const makeupLook = defineType({
   name: 'makeupLook',
