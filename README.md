@@ -115,9 +115,16 @@ Live URLs:
 Set `PUBLIC_SITE_URL` to the matching URL in each environment so canonical and
 Open Graph links use the clean domain rather than the per-deployment hash URL.
 
-### Environment variables (Settings → Environment variables)
+### Environment variables
 
-Set these for **Production** and **Preview** separately:
+> **They live in `web/wrangler.jsonc`, not the dashboard.** Because the project
+> ships a Wrangler config, Cloudflare Pages reads build variables from that
+> file (`vars` for production, `env.preview.vars` for preview) and ignores the
+> ones entered in Settings → Variables and secrets. Edit the file and push.
+> Secrets (e.g. Stripe keys later) are the exception: add those in the
+> dashboard as **Secret**; they are only exposed to server functions.
+
+Values per environment:
 
 | Variable                    | Production                | Preview                   |
 | --------------------------- | ------------------------- | ------------------------- |
