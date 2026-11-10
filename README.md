@@ -105,7 +105,15 @@ Create a Pages project connected to this repository with:
 
 `web/wrangler.jsonc` records the output dir and compatibility date. Preview
 deployments are automatic for every non-production branch, so `dev` gets its own
-`https://dev.<project>.pages.dev` URL.
+branch alias.
+
+Live URLs:
+
+- Production (`main`): <https://anisha-art-portfolio.pages.dev>
+- Preview (`dev`): <https://dev.anisha-art-portfolio.pages.dev>
+
+Set `PUBLIC_SITE_URL` to the matching URL in each environment so canonical and
+Open Graph links use the clean domain rather than the per-deployment hash URL.
 
 ### Environment variables (Settings → Environment variables)
 
